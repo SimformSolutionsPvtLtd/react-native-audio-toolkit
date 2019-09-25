@@ -259,7 +259,16 @@ RCT_EXPORT_METHOD(seek:(nonnull NSNumber*)playerId withPos:(nonnull NSNumber*)po
 
 RCT_EXPORT_METHOD(play:(nonnull NSNumber*)playerId withCallback:(RCTResponseSenderBlock)callback) {
     ReactPlayer* player = (ReactPlayer *)[self playerForKey:playerId];
-
+     // Set audio session
+    NSError *error = nil;
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &error];
+    if (error) {
+        NSDictionary* dict = [Helpers errObjWithCode:@"preparefail"
+                                         withMessage:@"Failed to set audio session category."];
+        callback(@[dict]);
+        return;
+    }
+    
     if (!player) {
         NSDictionary* dict = [Helpers errObjWithCode:@"notfound"
                                          withMessage:[NSString stringWithFormat:@"playerId %@ not found.", playerId]];
@@ -348,7 +357,16 @@ RCT_EXPORT_METHOD(pause:(nonnull NSNumber*)playerId withCallback:(RCTResponseSen
 
 RCT_EXPORT_METHOD(resume:(nonnull NSNumber*)playerId withCallback:(RCTResponseSenderBlock)callback) {
     ReactPlayer* player = (ReactPlayer *)[self playerForKey:playerId];
-
+    // Set audio session
+    NSError *error = nil;
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &error];
+    if (error) {
+        NSDictionary* dict = [Helpers errObjWithCode:@"preparefail"
+                                         withMessage:@"Failed to set audio session category."];
+        callback(@[dict]);
+        return;
+    }
+    
     if (!player) {
         NSDictionary* dict = [Helpers errObjWithCode:@"notfound"
                                          withMessage:[NSString stringWithFormat:@"playerId %@ not found.", playerId]];
