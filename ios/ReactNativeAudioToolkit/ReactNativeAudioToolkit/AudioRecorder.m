@@ -172,14 +172,6 @@ RCT_EXPORT_METHOD(pause:(nonnull NSNumber *)recorderId withCallback:(RCTResponse
 
 RCT_EXPORT_METHOD(destroy:(nonnull NSNumber *)recorderId withCallback:(RCTResponseSenderBlock)callback) {
     [self destroyRecorderWithId:recorderId];
-    // Set audio session
-    NSError *error = nil;
-    if (error) {
-        NSDictionary* dict = [Helpers errObjWithCode:@"preparefail"
-                                         withMessage:@"Failed to set audio session category."];
-        callback(@[dict]);
-        return;
-    }
     callback(@[[NSNull null]]);
 }
 
