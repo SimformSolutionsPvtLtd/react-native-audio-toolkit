@@ -172,6 +172,14 @@ RCT_EXPORT_METHOD(pause:(nonnull NSNumber *)recorderId withCallback:(RCTResponse
 
 RCT_EXPORT_METHOD(destroy:(nonnull NSNumber *)recorderId withCallback:(RCTResponseSenderBlock)callback) {
     [self destroyRecorderWithId:recorderId];
+    // Set audio session
+    NSError *error = nil;
+    if (error) {
+        NSDictionary* dict = [Helpers errObjWithCode:@"preparefail"
+                                         withMessage:@"Failed to set audio session category."];
+        callback(@[dict]);
+        return;
+    }
     callback(@[[NSNull null]]);
 }
 
@@ -188,6 +196,10 @@ RCT_EXPORT_METHOD(destroy:(nonnull NSNumber *)recorderId withCallback:(RCTRespon
         AVAudioRecorder *recorder = [[self recorderPool] objectForKey:recorderId];
         if (recorder) {
             [recorder stop];
+            // Set audio session
+            NSError *error = nil;
+            [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &error];
+    
             [[self recorderPool] removeObjectForKey:recorderId];
             NSString *eventName = [NSString stringWithFormat:@"RCTAudioRecorderEvent:%@", recorderId];
             [self.bridge.eventDispatcher sendAppEventWithName:eventName
