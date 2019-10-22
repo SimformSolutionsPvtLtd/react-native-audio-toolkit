@@ -4,7 +4,7 @@ import android.annotation.TargetApi;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.net.Uri;
 import android.webkit.URLUtil;
@@ -275,6 +275,27 @@ public class AudioRecorderModule extends ReactContextBaseJavaModule implements
                 destroy(recorderId);
             }
             callback.invoke();
+        } catch (Exception e) {
+            callback.invoke(errObj("stopfail", e.toString()));
+        }
+    }
+
+    @ReactMethod
+    public void currentLevel(Integer recorderId, Callback callback) {
+        MediaRecorder recorder = this.recorderPool.get(recorderId);
+        if (recorder == null) {
+            callback.invoke(errObj("notfound", "recorderId " + recorderId + "not found."));
+            return;
+        }
+        try {
+            WritableMap body = Arguments.createMap();
+            int amplitude = recorder.getMaxAmplitude();
+            if (amplitude == 0) {
+                body.putInt("value", -160);
+            } else {
+                body.putInt("value", (int) (20 * Math.log(((double) amplitude) / 32767d)));
+            }
+            callback.invoke(null, body);
         } catch (Exception e) {
             callback.invoke(errObj("stopfail", e.toString()));
         }
