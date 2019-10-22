@@ -32,10 +32,9 @@ class Recorder extends EventEmitter {
 
     this._path = path;
     this._options = options;
-
     this._recorderId = recorderId++;
     this._reset();
-
+    this.soundLevel = 0
     let appEventEmitter = Platform.OS === 'ios' ? NativeAppEventEmitter : DeviceEventEmitter;
 
     appEventEmitter.addListener('RCTAudioRecorderEvent:' + this._recorderId, (payload: Event) => {
@@ -151,6 +150,18 @@ class Recorder extends EventEmitter {
   destroy(callback = noop) {
     this._reset();
     RCTAudioRecorder.destroy(this._recorderId, callback);
+  }
+
+  get currentLevel() {
+    if (this._state >= MediaStates.RECORDING) {
+      RCTAudioRecorder.currentLevel(this._recorderId, (err, data) => {
+        console.log('LOg for value:',data.value)
+        this.soundLevel = err ? 0 : data.value
+      });
+      return this.soundLevel
+    } else {
+  return 0
+    }
   }
 
   get state()       { return this._state;                          }
